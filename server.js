@@ -1,5 +1,14 @@
-var io  = require('socket.io');  
-var server = io.listen(8080);
+var http = require('http');
+var fs = require('fs');
+//start socket.io
+var server = http.createServer(function(req, res) {
+    fs.readFile('./index.html', 'utf-8', function(error, content) {
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.end(content);
+    });
+});
+var io = require('socket.io').listen(server);
+server.listen(8080);
 //start rosbridge
 var ROSLIB = require('roslib');
 var ros = new ROSLIB.Ros({
@@ -26,7 +35,7 @@ angular : {
 }
 });
 //events callbacks
-server.sockets.on('connection', function(socket) {  
+io.sockets.on('connection', function(socket) {  
     socket.emit('hello', {msg: 'welcome'});
    
     
